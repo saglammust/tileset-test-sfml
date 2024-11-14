@@ -33,9 +33,9 @@ class TileManager
     std::vector<Tile> m_tiles;
 
 public:
-    TileManager(Vec2 gs, Vec2 dim);
+    TileManager(Vec2 gs, Vec2 dim, const std::string &pathToTexture);
 
-    int init();
+    int init(const std::string &pathToTexture);
     void sRender();
     void sGUI();
     void sUserInput();

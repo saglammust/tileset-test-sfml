@@ -4,23 +4,40 @@
 
 #include "TileManager.h"
 
-TileManager::TileManager(Vec2 gs, Vec2 dim)
+TileManager::TileManager(Vec2 gs, Vec2 dim, const std::string &pathToTexture)
     : m_gridSize(gs), m_worldDimensions(dim)
 {
+    init(pathToTexture);
 }
 
-int TileManager::init()
+int TileManager::init(const std::string &pathToTexture)
 {
     m_window.create(sf::VideoMode(m_gridSize.x * m_worldDimensions.x, m_gridSize.y * m_worldDimensions.y), "Tilemap Test");
     m_window.setFramerateLimit(60);
 
-    m_level.resize(m_worldDimensions.x * m_worldDimensions.y, 0);
-
-    if (!m_tileset.loadFromFile("../resources/tileset.png"))
+    if (!m_tileset.loadFromFile(pathToTexture))
     {
         std::cerr << "Could not load texture file" << std::endl;
 
         return -1;
+    }
+
+    for (uint i = 0; i < (m_tileset.getSize().x / (int)m_gridSize.x) * (m_tileset.getSize().y / (int)m_gridSize.y); i++)
+    {
+        int tu = i % (m_tileset.getSize().x / (int)m_gridSize.x);
+        int tv = i / (m_tileset.getSize().x / (int)m_gridSize.x);
+
+        auto sprite = sf::Sprite(m_tileset, sf::IntRect(tu * m_gridSize.x, tv * m_gridSize.y, m_gridSize.x, m_gridSize.y));
+        m_tiles.emplace_back(Tile(sprite, i));
+        m_tiles.size();
+    }
+
+    uint numOfTile = (m_tileset.getSize().x / (int)m_gridSize.x) * (m_tileset.getSize().y / (int)m_gridSize.y);
+    std::srand(unsigned(std::time(nullptr)));
+    for (size_t i = 0; i < m_worldDimensions.x * m_worldDimensions.y; i++)
+    {
+        int p = rand() % numOfTile;
+        m_level.emplace_back(p);
     }
 
     if (!m_tilemap.load(m_tileset, m_gridSize, m_level, m_worldDimensions.x, m_worldDimensions.y))
@@ -30,19 +47,10 @@ int TileManager::init()
         return -2;
     }
 
-    for (uint i = 0; i < 5; i++)
-    {
-        auto sprite = sf::Sprite(m_tileset, sf::IntRect(i * m_gridSize.x, 0, m_gridSize.x, m_gridSize.y));
-        m_tiles.emplace_back(Tile(sprite, i));
-    }
-
     if (m_font.loadFromFile("../resources/tech.ttf"))
     {
-        m_gridText.setCharacterSize(10);
+        m_gridText.setCharacterSize(12);
         m_gridText.setFont(m_font);
-        m_gridText.setColor(sf::Color(0, 0, 0));
-        m_gridText.setFillColor(sf::Color(0, 0, 0));
-        m_gridText.setOutlineColor(sf::Color(0, 0, 0));
     }
     else
         return -3;

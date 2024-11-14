@@ -15,8 +15,7 @@
 
 int main()
 {
-    TileManager tm({32, 32}, {32, 18});
-    tm.init();
+    TileManager tm({64, 64}, {20, 12}, "../resources/ground_hot_lush_01.png");
     tm.run();
 
     return 0;
